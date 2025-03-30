@@ -95,8 +95,14 @@ require("lazy").setup({ -- Syntax highlighting
     config = function()
         require("mason").setup()
     end
-}, {"williamboman/mason-lspconfig.nvim"}, {"hrsh7th/nvim-cmp"}, {"hrsh7th/cmp-nvim-lsp"}, {"L3MON4D3/LuaSnip"},
--- Next.js, React, Tailwind & SCSS
+}, {
+    "williamboman/mason-lspconfig.nvim",
+    config = function()
+        require("mason-lspconfig").setup({
+            ensure_installed = {"tailwindcss"}
+        })
+    end
+}, {"hrsh7th/nvim-cmp"}, {"hrsh7th/cmp-nvim-lsp"}, {"L3MON4D3/LuaSnip"}, -- Next.js, React, Tailwind & SCSS
 {"jose-elias-alvarez/typescript.nvim"}, {"aca/emmet-ls"}, -- PHP & Twig
 {
     "phpactor/phpactor",
@@ -118,6 +124,45 @@ require("lazy").setup({ -- Syntax highlighting
     config = function()
         require("gitsigns").setup()
     end
+}, {
+    "luckasRanarison/tailwind-tools.nvim",
+    name = "tailwind-tools",
+    build = ":UpdateRemotePlugins",
+    dependencies = {"nvim-treesitter/nvim-treesitter", -- Required for Treesitter support
+    "nvim-telescope/telescope.nvim", -- Optional, for telescope integration
+    "neovim/nvim-lspconfig" -- Optional, for LSP support
+    },
+    opts = {
+        server = {
+            override = true, -- setup the server from the plugin if true
+            settings = {}, -- shortcut for `settings.tailwindCSS`
+            on_attach = function(client, bufnr)
+            end -- callback triggered when the server attaches to a buffer
+        },
+        document_color = {
+            enabled = true, -- can be toggled by commands
+            kind = "inline", -- "inline" | "foreground" | "background"
+            inline_symbol = "󰝤 ", -- only used in inline mode
+            debounce = 200 -- in milliseconds, only applied in insert mode
+        },
+        conceal = {
+            enabled = false, -- can be toggled by commands
+            min_length = nil, -- only conceal classes exceeding the provided length
+            symbol = "󱏿", -- only a single character is allowed
+            highlight = { -- extmark highlight options
+                fg = "#38BDF8"
+            }
+        },
+        cmp = {
+            highlight = "foreground" -- color preview style
+        },
+        telescope = {
+            utilities = {
+                callback = function(name, class)
+                end -- callback used when selecting an utility class in telescope
+            }
+        }
+    }
 }})
 
 require("keymaps") -- Load keymaps
@@ -131,3 +176,22 @@ local lspconfig = require("lspconfig")
 lspconfig.ts_ls.setup({}) -- TypeScript / JavaScript (use ts_ls instead of tsserver)
 lspconfig.phpactor.setup({}) -- PHP
 lspconfig.gopls.setup({}) -- Go
+lspconfig.tailwindcss.setup({
+    filetypes = {"html", "css", "scss", "javascript", "typescript", "javascriptreact", "typescriptreact", "tsx", "jsx"},
+    cmd = {"tailwindcss-language-server", "--stdio"},
+    settings = {
+        tailwindCSS = {
+            classAttributes = {"class", "className", "class:list", "classList", "ngClass"},
+            includeLanguages = {
+                typescript = "javascript",
+                typescriptreact = "javascript",
+                javascriptreact = "javascript",
+                eelixir = "html-eex",
+                eruby = "erb",
+                htmlangular = "html",
+                templ = "html"
+            },
+            validate = true
+        }
+    }
+})
