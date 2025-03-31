@@ -48,6 +48,15 @@ then
   sudo pacman -S --noconfirm luarocks
 fi
 
+if
+	! command -v lazygit &
+	>/dev/null
+then
+	echo "Installing Lazygit"
+	sudo pacman -S --noconfirm lazygit
+fi
+
+
 # Install hererocks if needed
 echo "Setting up hererocks (if required for Neovim plugins)..."
 if [ ! -d "$HOME/.local/share/nvim/lazy-rocks/hererocks" ]; then
