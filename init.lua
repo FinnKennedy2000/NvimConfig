@@ -163,7 +163,9 @@ require("lazy").setup({ -- Syntax highlighting
             }
         }
     }
-}})
+},
+  {'akinsho/toggleterm.nvim', version = "*", opts = {--[[ things you want to change go here]]}}
+})
 
 require("keymaps") -- Load keymaps
 
