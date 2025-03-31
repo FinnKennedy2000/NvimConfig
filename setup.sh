@@ -2,6 +2,47 @@
 
 echo "Setting up Neovim configuration..."
 
+# Check for required tools
+if
+  ! command -v git &
+  >/dev/null
+then
+  echo "Error: git is not installed. Please install git and try again."
+  exit 1
+fi
+
+if
+  ! command -v go &
+  >/dev/null
+then
+  echo "Error: Go is not installed. Please install Go and try again."
+  exit 1
+fi
+
+if
+  ! command -v npm &
+  >/dev/null
+then
+  echo "Error: npm is not installed. Please install Node.js and npm and try again."
+  exit 1
+fi
+
+if
+  ! command -v pip &
+  >/dev/null
+then
+  echo "Error: pip is not installed. Please install Python and pip and try again."
+  exit 1
+fi
+
+if
+  ! command -v sudo &
+  >/dev/null
+then
+  echo "Error: sudo is not installed. Please install sudo and try again."
+  exit 1
+fi
+
 # Install Lazy.nvim if not already installed
 if [ ! -d "$HOME/.local/share/nvim/lazy/lazy.nvim" ]; then
   echo "Installing Lazy.nvim..."
@@ -49,13 +90,12 @@ then
 fi
 
 if
-	! command -v lazygit &
-	>/dev/null
+  ! command -v lazygit &
+  >/dev/null
 then
-	echo "Installing Lazygit"
-	sudo pacman -S --noconfirm lazygit
+  echo "Installing Lazygit"
+  sudo pacman -S --noconfirm lazygit
 fi
-
 
 # Install hererocks if needed
 echo "Setting up hererocks (if required for Neovim plugins)..."
