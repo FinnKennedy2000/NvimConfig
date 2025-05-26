@@ -97,11 +97,10 @@ vim.keymap.set("n", "<C-Space>", ":lua tree_actions_menu() <CR>", {
     noremap = true
 })
 
-vim.api.nvim_set_keymap("n", "<C-G>", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
+vim.api.nvim_set_keymap("n", "<C-G>", "<cmd>lua _lazygit_toggle()<CR>", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>pf", "<cmd>!npx prettier --write %<CR>", {
     desc = "Format with Prettier"
 })
 
 vim.api.nvim_set_keymap("n", "<leader>nc", ":lua _add_use_client()<CR>", { noremap = true, silent = true })
-
