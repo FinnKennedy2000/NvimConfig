@@ -7,6 +7,7 @@ return {{
         conform.setup({
             formatters_by_ft = {
                 css = {"prettierd", "prettier"},
+                scss= {"prettierd", "prettier"},
                 graphql = {"prettierd", "prettier"},
                 html = {"prettierd", "prettier"},
                 javascript = {"prettierd", "prettier"},
