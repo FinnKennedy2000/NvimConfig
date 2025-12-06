@@ -2,8 +2,26 @@ local snippet_trigger_text = ";"
 
 return {{
     'saghen/blink.nvim',
-    build = 'cargo build --release', -- for delimiters
-    dependencies = {'saghen/blink.cmp'},
+    -- Use nightly if available to satisfy blink.cmp's SIMD features; fallback to stable
+    build = function()
+      local cmd = { 'cargo', 'build', '--release', '--locked' }
+      if vim.fn.executable('rustup') == 1 then
+        cmd = { 'cargo', '+nightly', 'build', '--release', '--locked' }
+        vim.fn.system({ 'rustup', 'toolchain', 'install', 'nightly', '--profile', 'minimal', '--quiet' })
+      end
+      vim.fn.system(cmd)
+    end,
+    dependencies = {{
+        'saghen/blink.cmp',
+        build = function()
+          local cmd = { 'cargo', 'build', '--release', '--locked' }
+          if vim.fn.executable('rustup') == 1 then
+            cmd = { 'cargo', '+nightly', 'build', '--release', '--locked' }
+            vim.fn.system({ 'rustup', 'toolchain', 'install', 'nightly', '--profile', 'minimal', '--quiet' })
+          end
+          vim.fn.system(cmd)
+        end, -- ensure fuzzy native lib is built
+    }},
     keys = { -- chartoggle
     {
         '<C-;>',
@@ -37,9 +55,6 @@ return {{
     lazy = false,
     opts = {
         chartoggle = {
-            enabled = true
-        },
-        indent = {
             enabled = true
         },
         tree = {

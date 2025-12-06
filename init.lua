@@ -7,6 +7,42 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+-- Silence deprecated LSP helpers by providing forward-compatible shims
+if vim.lsp then
+  vim.lsp.buf_get_clients = function(bufnr)
+    return vim.lsp.get_clients({ bufnr = bufnr })
+  end
+  vim.lsp.get_active_clients = function(filter)
+    return vim.lsp.get_clients(filter or {})
+  end
+end
+
+-- Ensure host providers find user installs
+do
+  local function set_host_prog(var, prefer_path, fallback_exe)
+    if prefer_path and vim.fn.executable(prefer_path) == 1 then
+      vim.g[var] = prefer_path
+      return
+    end
+    local path = vim.fn.exepath(fallback_exe)
+    if path and path ~= "" then
+      vim.g[var] = path
+    end
+  end
+  set_host_prog('python3_host_prog', vim.fn.expand('~/.local/share/nvim/venv/bin/python'), 'python3')
+  set_host_prog('node_host_prog', vim.fn.exepath('neovim-node-host'), 'node')
+  set_host_prog('ruby_host_prog', nil, 'ruby')
+end
+
+-- Let Node see user-global modules (npm --prefix ~/.local)
+do
+  local node_path = vim.fn.expand('~/.local/lib/node_modules')
+  if vim.fn.isdirectory(node_path) == 1 then
+    local sep = package.config:sub(1, 1) == '\\' and ';' or ':'
+    vim.env.NODE_PATH = vim.env.NODE_PATH and (node_path .. sep .. vim.env.NODE_PATH) or node_path
+  end
+end
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -86,7 +122,6 @@ vim.opt.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
-vim.keymap.set('n', '<leader>n', '', { desc = ' [N]extJs Functions' })
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -129,7 +164,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
   callback = function()
-    vim.highlight.on_yank()
+    if vim.hl and vim.hl.on_yank then
+      vim.hl.on_yank()
+    else
+      vim.highlight.on_yank()
+    end
   end,
 })
 

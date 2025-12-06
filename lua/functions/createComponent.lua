@@ -13,16 +13,22 @@ function _G.create_react_component()
       return
     end
 
-    -- Convert name to PascalCase
+    -- Convert name to PascalCase (strip non-alphanumeric separators)
     local function to_pascal_case(str)
-      return str:gsub("(%a)([%w_]*)", function(a, b)
-        return a:upper() .. b:lower()
-      end)
+      local parts = {}
+      for word in tostring(str):gmatch("[A-Za-z0-9]+") do
+        parts[#parts + 1] = word:sub(1, 1):upper() .. word:sub(2):lower()
+      end
+      return table.concat(parts)
     end
     local pascal_name = to_pascal_case(component_name)
+    if pascal_name == "" then
+      print("Invalid component name.")
+      return
+    end
 
     -- Create the folder path
-    local folder_path = default_path .. "/" .. component_name
+    local folder_path = default_path .. "/" .. pascal_name
 
     -- Create the folder
     vim.fn.mkdir(folder_path, "p")
@@ -38,7 +44,7 @@ return <p>new component</p>;
 ]], pascal_name)
 
     -- Write the file
-    local file_path = folder_path .. "/" .. component_name .. ".tsx"
+    local file_path = folder_path .. "/" .. pascal_name .. ".tsx"
     local file = io.open(file_path, "w")
     if file then
       file:write(component_template)
@@ -50,21 +56,25 @@ return <p>new component</p>;
 
     -- Check if index.ts exists in the components directory and create it if missing
     local index_ts_path = default_path .. "/index.ts"
-    if not vim.loop.fs_stat(index_ts_path) then
-      local index_file = io.open(index_ts_path, "w")
-      if index_file then
-        index_file:write("export * from './" .. component_name .. "/" .. component_name .. "';\n")
-        index_file:close()
+    local export_line = string.format("export * from './%s/%s';\n", pascal_name, pascal_name)
+    local index_file = io.open(index_ts_path, "r")
+    if not index_file then
+      local new_index = io.open(index_ts_path, "w")
+      if new_index then
+        new_index:write(export_line)
+        new_index:close()
         print("Created index.ts for exports.")
       end
     else
-      -- Append export line if not already present
-      local existing_content = io.open(index_ts_path, "r"):read("*a")
-      if not existing_content:match("export %* from './" .. component_name .. "/" .. component_name .. "';") then
-        local index_file = io.open(index_ts_path, "a")
-        index_file:write("export * from './" .. component_name .. "/" .. component_name .. "';\n")
-        index_file:close()
-        print("Updated index.ts with export.")
+      local existing_content = index_file:read("*a") or ""
+      index_file:close()
+      if not existing_content:find(export_line, 1, true) then
+        local append_index = io.open(index_ts_path, "a")
+        if append_index then
+          append_index:write(export_line)
+          append_index:close()
+          print("Updated index.ts with export.")
+        end
       end
     end
 

@@ -33,7 +33,17 @@ return {
       -- LSP progress UI
       {
         'j-hui/fidget.nvim',
-        opts = {},
+        opts = {
+          integration = {
+            ["nvim-tree"] = { enable = false },
+          },
+          notification = {
+            window = {
+              -- Explicitly avoid NvimTree to future-proof integration removal
+              avoid = { filetypes = { "NvimTree" } },
+            },
+          },
+        },
       },
 
       -- LSP completion source
@@ -41,7 +51,14 @@ return {
     },
 
     config = function()
-      local lspconfig = require("lspconfig")
+      local configs = require("lspconfig.configs")
+      local function server(name)
+        local ok, cfg = pcall(require, "lspconfig.configs." .. name)
+        if ok and configs[name] == nil then
+          configs[name] = cfg
+        end
+        return configs[name]
+      end
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
       -- Optional: Custom on_attach function for LSP keybindings
@@ -79,11 +96,14 @@ return {
       }
 
       for name, opts in pairs(servers) do
-        lspconfig[name].setup {
-          capabilities = capabilities,
-          on_attach = on_attach,
-          settings = opts,
-        }
+        local cfg = server(name)
+        if cfg and cfg.setup then
+          cfg.setup {
+            capabilities = capabilities,
+            on_attach = on_attach,
+            settings = opts,
+          }
+        end
       end
     end
   },

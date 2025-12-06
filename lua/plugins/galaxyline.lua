@@ -7,6 +7,17 @@ return {{
       local gl = require('galaxyline')
       local condition = require('galaxyline.condition')
       local package_info_present, package = pcall(require, 'package-info')
+      local function current_lsp()
+          local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+          if not clients or #clients == 0 then
+              return ''
+          end
+          local names = {}
+          for _, client in ipairs(clients) do
+              table.insert(names, client.name)
+          end
+          return table.concat(names, ',')
+      end
 
       -- Configuration {{{1
 
@@ -324,11 +335,8 @@ return {{
       table.insert(gls.left, {
           LspIcon = {
               provider = function()
-                  local name = ""
-                  if gl.lspclient ~= nil then
-                      name = gl.lspclient()
-                  end
-                  return '' .. name
+                  local name = current_lsp()
+                  return name ~= '' and ('' .. name) or ''
               end,
               highlight = {colors.lspbg, colors.lspicon}
           }
@@ -343,7 +351,9 @@ return {{
       })
       table.insert(gls.left, {
           ShowLspClient = {
-              provider = 'GetLspClient',
+              provider = function()
+                  return current_lsp()
+              end,
               highlight = {colors.textbg, colors.lspbg}
           }
       })
