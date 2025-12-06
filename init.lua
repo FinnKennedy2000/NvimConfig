@@ -212,3 +212,16 @@ require('lazy').setup({
 })
 require('functions.addUseClient')
 require('functions.createComponent')
+local devshortcuts = require('functions.devshortcuts')
+
+-- Dev shortcuts
+vim.keymap.set('n', '<leader>np', devshortcuts.create_next_page, { desc = 'New Next.js [p]age (app/..)' })
+vim.keymap.set('n', '<leader>na', devshortcuts.create_api_route, { desc = 'New Next.js API route' })
+vim.keymap.set('n', '<leader>nt', devshortcuts.toggle_test_file, { desc = 'Toggle/create test file' })
+vim.keymap.set('n', '<leader>tw', devshortcuts.sort_tailwind, { desc = 'Sort tailwind classes on line' })
+vim.keymap.set('v', '<leader>jf', devshortcuts.wrap_jsx_fragment, { desc = 'Wrap selection in <> </>' })
+vim.keymap.set('n', '<leader>fo', function() require('conform').format({ lsp_fallback = true }) end,
+  { desc = 'Format buffer' })
+vim.keymap.set('n', '<leader>lr', '<cmd>LspRestart<cr>', { desc = 'LSP restart' })
+vim.keymap.set('n', '<leader>li', '<cmd>LspInfo<cr>', { desc = 'LSP info' })
+require('functions.devshortcuts')
