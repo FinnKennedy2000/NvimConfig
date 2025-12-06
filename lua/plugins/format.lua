@@ -4,7 +4,48 @@ return {{
     config = function()
         local conform = require("conform")
 
+        -- Ensure formatter binaries are discoverable even when installed globally
+        local function prepend_to_path(dir)
+            if dir and dir ~= "" and vim.fn.isdirectory(dir) == 1 then
+                vim.env.PATH = dir .. ":" .. vim.env.PATH
+            end
+        end
+        prepend_to_path(vim.fn.expand("~/.composer/vendor/bin"))
+        prepend_to_path(vim.fn.expand("~/.config/composer/vendor/bin"))
+        prepend_to_path(vim.fn.systemlist("npm root -g")[1])
+
         conform.setup({
+            formatters = {
+                prettier = {
+                    prepend_args = {"--tab-width", "2", "--use-tabs", "false"}
+                },
+                php_cs_fixer = {
+                    env = { PHP_CS_FIXER_IGNORE_ENV = "1" },
+                },
+                prettier_php = (function()
+                    local npm_root = vim.fn.systemlist("npm root -g")[1] or ""
+                    return {
+                        command = "prettier",
+                        prefer_local = false, -- always use global prettier, ignore per-project installs
+                        args = {
+                            "--stdin-filepath",
+                            "$FILENAME",
+                            "--plugin",
+                            "@prettier/plugin-php",
+                            "--plugin-search-dir",
+                            "/usr/lib/node_modules",
+                            "--plugin-search-dir",
+                            npm_root,
+                            "--parser",
+                            "php",
+                            "--tab-width",
+                            "2",
+                            "--use-tabs",
+                            "false"
+                        },
+                    }
+                end)(),
+            },
             formatters_by_ft = {
                 css = {"prettierd", "prettier"},
                 graphql = {"prettierd", "prettier"},
@@ -14,6 +55,7 @@ return {{
                 json = {"prettierd", "prettier"},
                 lua = {"stylua"},
                 markdown = {"prettierd", "prettier"},
+                php = {"pint", "php_cs_fixer", "prettier_php"},
                 python = {"isort", "black"},
                 sql = {"sql-formatter"},
                 svelte = {"prettierd", "prettier"},

@@ -106,6 +106,7 @@ ensure_tool python3 python3 python python3 python3
 if ! command_exists pip3 && ! command_exists pip; then
   ensure_tool pip3 "python3-pip" "python-pip" "" "python3-pip"
 fi
+ensure_tool composer composer composer composer composer
 ensure_tool rustup rustup rustup rustup rustup
 ensure_tool cargo cargo cargo rust cargo
 ensure_tool luarocks luarocks luarocks luarocks luarocks
@@ -137,6 +138,7 @@ EOF
 fi
 
 export PATH="$PATH:$HOME/.local/bin:$HOME/.luarocks/bin:$GOBIN"
+export PATH="$PATH:$HOME/.composer/vendor/bin:$HOME/.config/composer/vendor/bin"
 export GOBIN
 
 # Install Lazy.nvim if not already installed
@@ -195,6 +197,8 @@ info "Installing Node.js neovim package..."
 if command_exists npm; then
   npm config set prefix "$HOME/.local" >/dev/null 2>&1 || true
   npm install -g --prefix "$HOME/.local" neovim || warn "npm neovim install failed."
+  info "Installing formatter npm packages (prettier, php plugin, prettierd, sql-formatter)..."
+  npm install -g --prefix "$HOME/.local" prettier @prettier/plugin-php @fsouza/prettierd sql-formatter || warn "npm formatter install failed."
 else
   warn "npm not available; skipping Node.js neovim package."
 fi
@@ -215,6 +219,29 @@ if command_exists gem; then
   gem install --user-install neovim || warn "Ruby neovim gem install failed."
 else
   warn "gem not available; skipping Ruby provider install."
+fi
+
+info "Installing PHP formatters..."
+# Prefer package manager php-cs-fixer if available
+if ! command_exists php-cs-fixer; then
+  case "$PKG_MANAGER" in
+    pacman) install_packages php-cs-fixer || true ;;
+    apt-get) install_packages php-cs-fixer || true ;;
+    dnf|yum|zypper) install_packages php-cs-fixer || true ;;
+    brew) brew install php-cs-fixer || true ;;
+  esac
+fi
+
+# Composer fallbacks for php-cs-fixer and pint
+if command_exists composer; then
+  if ! command_exists php-cs-fixer; then
+    composer global require --no-progress friendsofphp/php-cs-fixer || warn "composer php-cs-fixer install failed."
+  fi
+  if ! command_exists pint; then
+    composer global require --no-progress laravel/pint || warn "composer pint install failed."
+  fi
+else
+  warn "composer not available; skipping composer-based PHP formatters."
 fi
 
 # Treesitter parsers and plugin sync
