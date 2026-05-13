@@ -224,4 +224,3 @@ vim.keymap.set('n', '<leader>fo', function() require('conform').format({ lsp_fal
   { desc = 'Format buffer' })
 vim.keymap.set('n', '<leader>lr', '<cmd>LspRestart<cr>', { desc = 'LSP restart' })
 vim.keymap.set('n', '<leader>li', '<cmd>LspInfo<cr>', { desc = 'LSP info' })
-require('functions.devshortcuts')

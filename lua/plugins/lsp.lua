@@ -3,65 +3,56 @@ return {
     -- Main LSP setup
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Mason: LSP installer UI
       {
         'williamboman/mason.nvim',
-        opts = {}
+        opts = {},
       },
-
-      -- Bridge Mason to lspconfig
       {
         'williamboman/mason-lspconfig.nvim',
-        opts = {}
+        opts = {},
       },
-
-      -- Automatically install servers
       {
         'WhoIsSethDaniel/mason-tool-installer.nvim',
         opts = {
           ensure_installed = {
-            "lua-language-server",
-            "typescript-language-server",
-            "gopls",
-            "pyright",
+            'lua-language-server',
+            'typescript-language-server',
+            'gopls',
+            'pyright',
           },
           auto_update = true,
           run_on_start = true,
-        }
+        },
       },
-
-      -- LSP progress UI
       {
         'j-hui/fidget.nvim',
         opts = {
           integration = {
-            ["nvim-tree"] = { enable = false },
+            ['nvim-tree'] = { enable = false },
           },
           notification = {
             window = {
-              -- Explicitly avoid NvimTree to future-proof integration removal
-              avoid = { filetypes = { "NvimTree" } },
+              avoid = { filetypes = { 'NvimTree' } },
             },
           },
         },
       },
-
-      -- LSP completion source
       'hrsh7th/cmp-nvim-lsp',
     },
 
     config = function()
-      local configs = require("lspconfig.configs")
+      local configs = require('lspconfig.configs')
+
       local function server(name)
-        local ok, cfg = pcall(require, "lspconfig.configs." .. name)
+        local ok, cfg = pcall(require, 'lspconfig.configs.' .. name)
         if ok and configs[name] == nil then
           configs[name] = cfg
         end
         return configs[name]
       end
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Optional: Custom on_attach function for LSP keybindings
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
       local function on_attach(_, bufnr)
         local nmap = function(keys, func, desc)
           if desc then
@@ -79,16 +70,15 @@ return {
         nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Help')
       end
 
-      -- Configure your LSP servers here
       local servers = {
         lua_ls = {
           Lua = {
             workspace = { checkThirdParty = false },
             telemetry = { enable = false },
             diagnostics = {
-              globals = { "vim" },
+              globals = { 'vim' },
             },
-          }
+          },
         },
         ts_ls = {},
         gopls = {},
@@ -105,19 +95,19 @@ return {
           }
         end
       end
-    end
+    end,
   },
 
   {
     -- Handles renaming, moving, etc. of files with LSP awareness
-    "antosha417/nvim-lsp-file-operations",
-    event = "LspAttach",
+    'antosha417/nvim-lsp-file-operations',
+    event = 'LspAttach',
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-tree.lua",
+      'nvim-lua/plenary.nvim',
+      'nvim-neo-tree/neo-tree.nvim',
     },
     config = function()
-      require("lsp-file-operations").setup()
-    end
-  }
+      require('lsp-file-operations').setup()
+    end,
+  },
 }

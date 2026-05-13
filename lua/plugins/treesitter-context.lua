@@ -1,7 +1,7 @@
 return {
   'nvim-treesitter/nvim-treesitter-context',
   config = function()
-    require'treesitter-context'.setup{
+    require('treesitter-context').setup {
       enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
       multiwindow = false, -- Enable multiwindow support.
       max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
@@ -16,5 +16,19 @@ return {
       zindex = 20, -- The Z-index of the context window
       on_attach = nil, -- (fun(buf: integer): boolean) return false to disable attaching
     }
+
+    local ok, context = pcall(require, 'treesitter-context.context')
+    if not ok or type(context.get) ~= 'function' then
+      return
+    end
+
+    local original_get = context.get
+    context.get = function(winid)
+      local get_ok, ranges, lines = pcall(original_get, winid)
+      if not get_ok then
+        return nil, nil
+      end
+      return ranges, lines
+    end
   end,
 }
