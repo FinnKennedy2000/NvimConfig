@@ -42,8 +42,8 @@ return {{
       map('n', '<A-c>', '<Cmd>BufferClose<CR>', opts)
 
       -- Magic buffer-picking mode
-      map('n', '<C-p>', '<Cmd>BufferPick<CR>', opts)
-      map('n', '<C-s-p>', '<Cmd>BufferPickDelete<CR>', opts)
+      map('n', '<A-;>', '<Cmd>BufferPick<CR>', opts)
+      map('n', '<A-s-;>', '<Cmd>BufferPickDelete<CR>', opts)
 
    
   end,

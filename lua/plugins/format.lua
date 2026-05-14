@@ -59,7 +59,7 @@ return {{
                 python = {"isort", "black"},
                 sql = {"sql-formatter"},
                 svelte = {"prettierd", "prettier"},
-                typescript = {"prettierd", "prettier", "sql-formatter"},
+                typescript = {"prettierd", "prettier"},
                 typescriptreact = {"prettierd", "prettier"},
                 yaml = {"prettier"},
                 xml = {"xmlformatter"}
